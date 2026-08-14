@@ -1,3 +1,4 @@
+java/target/
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -9,3 +10,11 @@ buildNumber.properties
 .mvn/timing.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
+*.exe
+*.exe~
+fyne-cross/
+third_party/
+dist/
+*.syso
+CopyTool.tar.xz
+CopyTool.app/
