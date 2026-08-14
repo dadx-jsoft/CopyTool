@@ -3,14 +3,14 @@ Copy all files from a folder to another folder without subfolder (flattened).
 
 ## Download
 
-Latest release: **[v1.1.0](https://github.com/dadx-jsoft/CopyTool/releases/tag/v1.1.0)** · [All releases](https://github.com/dadx-jsoft/CopyTool/releases)
+Latest release: **[v1.1.0](https://github.com/daduong-zen8labs/CopyTool/releases/tag/v1.1.0)** · [All releases](https://github.com/daduong-zen8labs/CopyTool/releases)
 
 ### Portable (run directly, no install)
 
 | OS | Download |
 |---|---|
-| Windows | [CopyTool-windows-amd64.exe](https://github.com/dadx-jsoft/CopyTool/releases/download/v1.1.0/CopyTool-windows-amd64.exe) |
-| Linux | [CopyTool-linux-amd64](https://github.com/dadx-jsoft/CopyTool/releases/download/v1.1.0/CopyTool-linux-amd64) |
+| Windows | [CopyTool-windows-amd64.exe](https://github.com/daduong-zen8labs/CopyTool/releases/download/v1.1.0/CopyTool-windows-amd64.exe) |
+| Linux | [CopyTool-linux-amd64](https://github.com/daduong-zen8labs/CopyTool/releases/download/v1.1.0/CopyTool-linux-amd64) |
 | macOS | Build on a Mac with `scripts/build-darwin.sh` (not in this release) |
 
 ```bash
@@ -23,8 +23,8 @@ chmod +x ./CopyTool-linux-amd64
 
 | OS | Download | How |
 |---|---|---|
-| Windows | [CopyTool-windows-amd64.zip](https://github.com/dadx-jsoft/CopyTool/releases/download/v1.1.0/CopyTool-windows-amd64.zip) | Unzip → run `CopyTool.exe` |
-| Linux | [CopyTool-linux-amd64.tar.xz](https://github.com/dadx-jsoft/CopyTool/releases/download/v1.1.0/CopyTool-linux-amd64.tar.xz) | `tar -xJf ...` then `sudo cp -a usr/local/* /usr/local/` |
+| Windows | [CopyTool-windows-amd64.zip](https://github.com/daduong-zen8labs/CopyTool/releases/download/v1.1.0/CopyTool-windows-amd64.zip) | Unzip → run `CopyTool.exe` |
+| Linux | [CopyTool-linux-amd64.tar.xz](https://github.com/daduong-zen8labs/CopyTool/releases/download/v1.1.0/CopyTool-linux-amd64.tar.xz) | `tar -xJf ...` then `sudo cp -a usr/local/* /usr/local/` |
 | macOS | — | Run `./scripts/build-darwin.sh` on a Mac → unzip `.app.zip` → open `CopyTool.app` |
 
 ## Features
