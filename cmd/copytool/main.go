@@ -88,6 +88,8 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 
 	fromBrowseBtn := widget.NewButton("Browse", func() { pickFolder(fromEntry) })
 	toBrowseBtn := widget.NewButton("Browse", func() { pickFolder(toEntry) })
+	fromBrowseBtn.Importance = widget.MediumImportance
+	toBrowseBtn.Importance = widget.MediumImportance
 	fromBrowse := wrapPointer(fromBrowseBtn)
 	toBrowse := wrapPointer(toBrowseBtn)
 
@@ -145,7 +147,9 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 	browseSpacer.SetMinSize(fyne.NewSize(browseWidth, 1))
 
 	pathField := func(entry *widget.Entry, browse fyne.CanvasObject) fyne.CanvasObject {
-		return container.NewBorder(nil, nil, nil, browse, entry)
+		gap := canvas.NewRectangle(color.Transparent)
+		gap.SetMinSize(fyne.NewSize(8, 1))
+		return container.NewBorder(nil, nil, nil, container.NewHBox(gap, browse), tallField(entry))
 	}
 
 	filterField := wrapPointer(mode)
@@ -157,7 +161,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		vGap(sectionGap),
 		formRow("Filter", filterField),
 		vGap(fieldGap),
-		formRow("Ext", container.NewBorder(nil, nil, nil, browseSpacer, extEntry)),
+		formRow("Ext", container.NewBorder(nil, nil, nil, browseSpacer, tallField(extEntry))),
 	)
 
 	copyBtn.Resize(fyne.NewSize(140, 36))
@@ -186,6 +190,12 @@ func formRow(label string, field fyne.CanvasObject) fyne.CanvasObject {
 	labelBox := container.NewGridWrap(fyne.NewSize(labelColWidth, lbl.MinSize().Height))
 	labelBox.Add(lbl)
 	return container.NewBorder(nil, nil, labelBox, nil, field)
+}
+
+func tallField(entry *widget.Entry) fyne.CanvasObject {
+	minH := canvas.NewRectangle(color.Transparent)
+	minH.SetMinSize(fyne.NewSize(0, 34))
+	return container.NewStack(minH, entry)
 }
 
 func vGap(h float32) fyne.CanvasObject {
