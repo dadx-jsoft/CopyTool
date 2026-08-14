@@ -80,8 +80,8 @@ chmod +x ./scripts/build-darwin.sh
 ### Native single-OS build
 
 ```bash
-# Windows
-go build -o CopyTool.exe ./cmd/copytool
+# Windows (no console window)
+go build -ldflags="-s -w -H windowsgui" -o CopyTool.exe ./cmd/copytool
 
 # macOS / Linux
 go build -o CopyTool ./cmd/copytool
