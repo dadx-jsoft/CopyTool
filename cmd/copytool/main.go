@@ -17,15 +17,17 @@ import (
 )
 
 var (
-	colorStatus = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
-	colorBlue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}
-	colorRed    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}
+	colorStatus = color.NRGBA{R: 70, G: 70, B: 70, A: 255}
+	colorMuted  = color.NRGBA{R: 120, G: 120, B: 120, A: 255}
+	colorBlue   = color.NRGBA{R: 0, G: 90, B: 200, A: 255}
+	colorRed    = color.NRGBA{R: 180, G: 30, B: 30, A: 255}
 )
 
 func main() {
 	a := app.NewWithID("com.vn.copytool")
 	w := a.NewWindow("Copy files tool")
-	w.Resize(fyne.NewSize(520, 420))
+	w.Resize(fyne.NewSize(560, 400))
+	w.SetFixedSize(false)
 	w.CenterOnScreen()
 	w.SetContent(buildUI(w))
 	w.ShowAndRun()
@@ -42,7 +44,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 
 	status := canvas.NewText("Status", colorStatus)
 	status.Alignment = fyne.TextAlignCenter
-	status.TextSize = 14
+	status.TextSize = 13
 
 	setStatus := func(text string, c color.Color) {
 		status.Text = text
@@ -81,6 +83,8 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 
 	fromBrowse := widget.NewButton("Browse", func() { pickFolder(fromEntry) })
 	toBrowse := widget.NewButton("Browse", func() { pickFolder(toEntry) })
+	fromBrowse.Importance = widget.MediumImportance
+	toBrowse.Importance = widget.MediumImportance
 
 	var copyBtn *widget.Button
 	copyBtn = widget.NewButton("Copy", func() {
@@ -125,26 +129,43 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 			})
 		}()
 	})
+	copyBtn.Importance = widget.HighImportance
 
-	footer := canvas.NewText("Dương Xuân Đà - 0961010169 - dadx.jsoft@gmail.com", colorStatus)
+	footer := canvas.NewText("Dương Xuân Đà - 0961010169 - dadx.jsoft@gmail.com", colorMuted)
 	footer.Alignment = fyne.TextAlignCenter
-	footer.TextSize = 12
+	footer.TextSize = 11
 
-	pathRow := func(label string, entry *widget.Entry, browse *widget.Button) fyne.CanvasObject {
-		return container.NewBorder(nil, nil, widget.NewLabel(label), browse, entry)
+	browseSpacer := canvas.NewRectangle(color.Transparent)
+	browseSpacer.SetMinSize(fyne.NewSize(fromBrowse.MinSize().Width, 1))
+
+	label := func(text string) *widget.Label {
+		l := widget.NewLabel(text)
+		l.Alignment = fyne.TextAlignTrailing
+		return l
 	}
 
-	filterRow := container.New(layout.NewFormLayout(),
-		widget.NewLabel("Filter"), mode,
-		widget.NewLabel("Ext"), extEntry,
+	form := container.New(layout.NewFormLayout(),
+		label("From"), container.NewBorder(nil, nil, nil, fromBrowse, fromEntry),
+		label("To"), container.NewBorder(nil, nil, nil, toBrowse, toEntry),
+		label("Filter"), mode,
+		label("Ext"), container.NewBorder(nil, nil, nil, browseSpacer, extEntry),
+	)
+
+	sep := canvas.NewLine(color.NRGBA{R: 210, G: 210, B: 210, A: 255})
+	sep.StrokeWidth = 1
+
+	copyRow := container.NewGridWithColumns(3,
+		layout.NewSpacer(),
+		copyBtn,
+		layout.NewSpacer(),
 	)
 
 	return container.NewPadded(container.NewVBox(
-		pathRow("From", fromEntry, fromBrowse),
-		pathRow("To", toEntry, toBrowse),
-		filterRow,
-		container.NewCenter(copyBtn),
+		form,
+		widget.NewSeparator(),
+		copyRow,
 		status,
+		sep,
 		footer,
 	))
 }
