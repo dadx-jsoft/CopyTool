@@ -31,7 +31,7 @@ var (
 func main() {
 	a := app.NewWithID("com.vn.copytool")
 	w := a.NewWindow("Copy files tool")
-	w.Resize(fyne.NewSize(500, 360))
+	w.Resize(fyne.NewSize(500, 400))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 	w.SetContent(buildUI(w))
@@ -74,7 +74,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		}
 	})
 	mode.SetSelected("All files")
-	mode.Horizontal = true
+	mode.Horizontal = false
 
 	pickFolder := func(target *widget.Entry) {
 		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
@@ -86,8 +86,10 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		}, w)
 	}
 
-	fromBrowse := widget.NewButton("Browse", func() { pickFolder(fromEntry) })
-	toBrowse := widget.NewButton("Browse", func() { pickFolder(toEntry) })
+	fromBrowseBtn := widget.NewButton("Browse", func() { pickFolder(fromEntry) })
+	toBrowseBtn := widget.NewButton("Browse", func() { pickFolder(toEntry) })
+	fromBrowse := wrapPointer(fromBrowseBtn)
+	toBrowse := wrapPointer(toBrowseBtn)
 
 	var copyBtn *widget.Button
 	copyBtn = widget.NewButton("Copy", func() {
@@ -138,26 +140,28 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 	footer.Alignment = fyne.TextAlignCenter
 	footer.TextSize = 11
 
-	browseWidth := fromBrowse.MinSize().Width
+	browseWidth := fromBrowseBtn.MinSize().Width
 	browseSpacer := canvas.NewRectangle(color.Transparent)
 	browseSpacer.SetMinSize(fyne.NewSize(browseWidth, 1))
 
-	pathField := func(entry *widget.Entry, browse *widget.Button) fyne.CanvasObject {
+	pathField := func(entry *widget.Entry, browse fyne.CanvasObject) fyne.CanvasObject {
 		return container.NewBorder(nil, nil, nil, browse, entry)
 	}
+
+	filterField := wrapPointer(mode)
 
 	rows := container.NewVBox(
 		formRow("From", pathField(fromEntry, fromBrowse)),
 		vGap(fieldGap),
 		formRow("To", pathField(toEntry, toBrowse)),
 		vGap(sectionGap),
-		formRow("Filter", mode),
+		formRow("Filter", filterField),
 		vGap(fieldGap),
 		formRow("Ext", container.NewBorder(nil, nil, nil, browseSpacer, extEntry)),
 	)
 
 	copyBtn.Resize(fyne.NewSize(140, 36))
-	copyRow := container.NewCenter(copyBtn)
+	copyRow := container.NewCenter(wrapPointer(copyBtn))
 
 	content := container.NewVBox(
 		rows,
