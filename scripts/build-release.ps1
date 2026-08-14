@@ -9,6 +9,7 @@
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 Set-Location $Root
+. (Join-Path $PSScriptRoot "build-flags.ps1")
 
 $env:PATH = "$(go env GOPATH)\bin;$env:PATH"
 
@@ -58,9 +59,9 @@ if ($sdk -and (Test-Path $sdk)) {
     Write-Warning "Skipping darwin. Set COPYTOOL_MACOSX_SDK or run scripts/build-darwin.sh on macOS."
 }
 
-# Also keep a stripped local Windows portable
+# Also keep a stripped local Windows portable (GUI subsystem, no console)
 Write-Host "==> local windows portable"
-go build -ldflags="-s -w" -o (Join-Path $Portable "CopyTool-windows-amd64.exe") ./cmd/copytool
+go build -ldflags="$WindowsLdflags" -o (Join-Path $Portable "CopyTool-windows-amd64.exe") ./cmd/copytool
 
 function Copy-IfExists([string]$Src, [string]$Dest) {
     if (Test-Path $Src) {

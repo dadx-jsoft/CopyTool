@@ -12,20 +12,27 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
+const (
+	labelColWidth = 52
+	fieldGap      = 10
+	sectionGap    = 14
+)
+
 var (
-	colorStatus = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
-	colorBlue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}
-	colorRed    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}
+	colorStatus = color.NRGBA{R: 70, G: 70, B: 70, A: 255}
+	colorMuted  = color.NRGBA{R: 130, G: 130, B: 130, A: 255}
+	colorBlue   = color.NRGBA{R: 0, G: 90, B: 200, A: 255}
+	colorRed    = color.NRGBA{R: 180, G: 30, B: 30, A: 255}
 )
 
 func main() {
 	a := app.NewWithID("com.vn.copytool")
 	w := a.NewWindow("Copy files tool")
-	w.Resize(fyne.NewSize(520, 420))
+	w.Resize(fyne.NewSize(500, 400))
+	w.SetFixedSize(true)
 	w.CenterOnScreen()
 	w.SetContent(buildUI(w))
 	w.ShowAndRun()
@@ -42,7 +49,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 
 	status := canvas.NewText("Status", colorStatus)
 	status.Alignment = fyne.TextAlignCenter
-	status.TextSize = 14
+	status.TextSize = 13
 
 	setStatus := func(text string, c color.Color) {
 		status.Text = text
@@ -58,7 +65,12 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 	toEntry.OnChanged = func(string) { resetStatus() }
 	extEntry.OnChanged = func(string) { resetStatus() }
 
-	mode := widget.NewRadioGroup([]string{"All files", "By extension", "Exclude extension"}, func(selected string) {
+	var mode *widget.RadioGroup
+	mode = widget.NewRadioGroup([]string{"All files", "By extension", "Exclude extension"}, func(selected string) {
+		if selected == "" {
+			mode.SetSelected("All files")
+			return
+		}
 		resetStatus()
 		if selected == "By extension" || selected == "Exclude extension" {
 			extEntry.Enable()
@@ -67,7 +79,8 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		}
 	})
 	mode.SetSelected("All files")
-	mode.Horizontal = true
+	mode.Required = true
+	mode.Horizontal = false
 
 	pickFolder := func(target *widget.Entry) {
 		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
@@ -79,8 +92,12 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		}, w)
 	}
 
-	fromBrowse := widget.NewButton("Browse", func() { pickFolder(fromEntry) })
-	toBrowse := widget.NewButton("Browse", func() { pickFolder(toEntry) })
+	fromBrowseBtn := widget.NewButton("Browse", func() { pickFolder(fromEntry) })
+	toBrowseBtn := widget.NewButton("Browse", func() { pickFolder(toEntry) })
+	fromBrowseBtn.Importance = widget.MediumImportance
+	toBrowseBtn.Importance = widget.MediumImportance
+	fromBrowse := stackPointer(fromBrowseBtn)
+	toBrowse := stackPointer(toBrowseBtn)
 
 	var copyBtn *widget.Button
 	copyBtn = widget.NewButton("Copy", func() {
@@ -125,28 +142,72 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 			})
 		}()
 	})
+	copyBtn.Importance = widget.HighImportance
 
-	footer := canvas.NewText("Dương Xuân Đà - 0961010169 - dadx.jsoft@gmail.com", colorStatus)
+	footer := canvas.NewText("Dương Xuân Đà - 0961010169 - dadx.jsoft@gmail.com", colorMuted)
 	footer.Alignment = fyne.TextAlignCenter
-	footer.TextSize = 12
+	footer.TextSize = 11
 
-	pathRow := func(label string, entry *widget.Entry, browse *widget.Button) fyne.CanvasObject {
-		return container.NewBorder(nil, nil, widget.NewLabel(label), browse, entry)
+	browseWidth := fromBrowseBtn.MinSize().Width
+	browseSpacer := canvas.NewRectangle(color.Transparent)
+	browseSpacer.SetMinSize(fyne.NewSize(browseWidth, 1))
+
+	pathField := func(entry *widget.Entry, browse fyne.CanvasObject) fyne.CanvasObject {
+		gap := canvas.NewRectangle(color.Transparent)
+		gap.SetMinSize(fyne.NewSize(8, 1))
+		return container.NewBorder(nil, nil, nil, container.NewHBox(gap, browse), tallField(entry))
 	}
 
-	filterRow := container.New(layout.NewFormLayout(),
-		widget.NewLabel("Filter"), mode,
-		widget.NewLabel("Ext"), extEntry,
+	filterField := wrapPointer(mode)
+
+	rows := container.NewVBox(
+		formRow("From", pathField(fromEntry, fromBrowse)),
+		vGap(fieldGap),
+		formRow("To", pathField(toEntry, toBrowse)),
+		vGap(sectionGap),
+		formRow("Filter", filterField),
+		vGap(fieldGap),
+		formRow("Ext", container.NewBorder(nil, nil, nil, browseSpacer, tallField(extEntry))),
 	)
 
-	return container.NewPadded(container.NewVBox(
-		pathRow("From", fromEntry, fromBrowse),
-		pathRow("To", toEntry, toBrowse),
-		filterRow,
-		container.NewCenter(copyBtn),
+	copyBtn.Resize(fyne.NewSize(140, 36))
+	copyRow := container.NewCenter(stackPointer(copyBtn))
+
+	content := container.NewVBox(
+		rows,
+		vGap(sectionGap),
+		widget.NewSeparator(),
+		vGap(fieldGap),
+		copyRow,
+		vGap(fieldGap),
 		status,
+		vGap(sectionGap),
+		widget.NewSeparator(),
+		vGap(6),
 		footer,
-	))
+	)
+
+	return container.NewPadded(content)
+}
+
+func formRow(label string, field fyne.CanvasObject) fyne.CanvasObject {
+	lbl := widget.NewLabel(label)
+	lbl.Alignment = fyne.TextAlignTrailing
+	labelBox := container.NewGridWrap(fyne.NewSize(labelColWidth, lbl.MinSize().Height))
+	labelBox.Add(lbl)
+	return container.NewBorder(nil, nil, labelBox, nil, field)
+}
+
+func tallField(entry *widget.Entry) fyne.CanvasObject {
+	minH := canvas.NewRectangle(color.Transparent)
+	minH.SetMinSize(fyne.NewSize(0, 34))
+	return container.NewStack(minH, entry)
+}
+
+func vGap(h float32) fyne.CanvasObject {
+	gap := canvas.NewRectangle(color.Transparent)
+	gap.SetMinSize(fyne.NewSize(1, h))
+	return gap
 }
 
 func uriToPath(uri fyne.ListableURI) string {
