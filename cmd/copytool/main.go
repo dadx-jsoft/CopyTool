@@ -90,8 +90,8 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 	toBrowseBtn := widget.NewButton("Browse", func() { pickFolder(toEntry) })
 	fromBrowseBtn.Importance = widget.MediumImportance
 	toBrowseBtn.Importance = widget.MediumImportance
-	fromBrowse := wrapPointer(fromBrowseBtn)
-	toBrowse := wrapPointer(toBrowseBtn)
+	fromBrowse := stackPointer(fromBrowseBtn)
+	toBrowse := stackPointer(toBrowseBtn)
 
 	var copyBtn *widget.Button
 	copyBtn = widget.NewButton("Copy", func() {
@@ -165,7 +165,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 	)
 
 	copyBtn.Resize(fyne.NewSize(140, 36))
-	copyRow := container.NewCenter(wrapPointer(copyBtn))
+	copyRow := container.NewCenter(stackPointer(copyBtn))
 
 	content := container.NewVBox(
 		rows,
