@@ -65,7 +65,12 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 	toEntry.OnChanged = func(string) { resetStatus() }
 	extEntry.OnChanged = func(string) { resetStatus() }
 
-	mode := widget.NewRadioGroup([]string{"All files", "By extension", "Exclude extension"}, func(selected string) {
+	var mode *widget.RadioGroup
+	mode = widget.NewRadioGroup([]string{"All files", "By extension", "Exclude extension"}, func(selected string) {
+		if selected == "" {
+			mode.SetSelected("All files")
+			return
+		}
 		resetStatus()
 		if selected == "By extension" || selected == "Exclude extension" {
 			extEntry.Enable()
@@ -74,6 +79,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		}
 	})
 	mode.SetSelected("All files")
+	mode.Required = true
 	mode.Horizontal = false
 
 	pickFolder := func(target *widget.Entry) {
