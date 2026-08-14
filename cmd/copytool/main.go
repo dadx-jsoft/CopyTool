@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"copytool/internal/copy"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
@@ -68,7 +70,6 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 	mode.Horizontal = true
 
 	pickFolder := func(target *widget.Entry) {
-		// Native folder dialog on Windows, macOS, and Linux (Fyne + CGO).
 		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
 			if err != nil || uri == nil {
 				return
@@ -90,19 +91,19 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 			return
 		}
 
-		filter := filterAll
+		filter := copy.FilterAll
 		var exts []string
 		switch mode.Selected {
 		case "By extension":
-			filter = filterInclude
-			exts = parseExtensions(extEntry.Text)
+			filter = copy.FilterInclude
+			exts = copy.ParseExtensions(extEntry.Text)
 			if len(exts) == 0 {
 				setStatus("Please enter file extensions", colorRed)
 				return
 			}
 		case "Exclude extension":
-			filter = filterExclude
-			exts = parseExtensions(extEntry.Text)
+			filter = copy.FilterExclude
+			exts = copy.ParseExtensions(extEntry.Text)
 			if len(exts) == 0 {
 				setStatus("Please enter file extensions", colorRed)
 				return
@@ -113,7 +114,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		setStatus("Copying", colorStatus)
 
 		go func() {
-			n, err := copyFilesToDirectory(sourceDir, destDir, filter, exts)
+			n, err := copy.CopyFilesToDirectory(sourceDir, destDir, filter, exts)
 			fyne.Do(func() {
 				copyBtn.Enable()
 				if err != nil || n < 0 {

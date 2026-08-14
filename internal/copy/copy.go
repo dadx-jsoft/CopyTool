@@ -1,4 +1,4 @@
-package main
+package copy
 
 import (
 	"fmt"
@@ -9,18 +9,18 @@ import (
 	"time"
 )
 
-type filterMode int
+type FilterMode int
 
 const (
-	filterAll filterMode = iota
-	filterInclude
-	filterExclude
+	FilterAll FilterMode = iota
+	FilterInclude
+	FilterExclude
 )
 
-// copyFilesToDirectory copies files from sourceDir into destDir flattened.
-// filterAll copies everything. filterInclude/filterExclude use exts
+// CopyFilesToDirectory copies files from sourceDir into destDir flattened.
+// FilterAll copies everything. FilterInclude/FilterExclude use exts
 // (case-insensitive, with or without leading dot).
-func copyFilesToDirectory(sourceDir, destDir string, mode filterMode, exts []string) (int64, error) {
+func CopyFilesToDirectory(sourceDir, destDir string, mode FilterMode, exts []string) (int64, error) {
 	extSet := makeExtSet(exts)
 
 	entries, err := os.ReadDir(sourceDir)
@@ -32,7 +32,7 @@ func copyFilesToDirectory(sourceDir, destDir string, mode filterMode, exts []str
 	for _, entry := range entries {
 		srcPath := filepath.Join(sourceDir, entry.Name())
 		if entry.IsDir() {
-			n, err := copyFilesToDirectory(srcPath, destDir, mode, exts)
+			n, err := CopyFilesToDirectory(srcPath, destDir, mode, exts)
 			if err != nil {
 				return -1, err
 			}
@@ -82,7 +82,7 @@ func normalizeExt(ext string) string {
 	return ext
 }
 
-func parseExtensions(input string) []string {
+func ParseExtensions(input string) []string {
 	parts := strings.FieldsFunc(input, func(r rune) bool {
 		return r == ',' || r == ';' || r == ' ' || r == '\t'
 	})
@@ -99,15 +99,15 @@ func fileExt(name string) string {
 	return strings.TrimPrefix(strings.ToLower(filepath.Ext(name)), ".")
 }
 
-func shouldCopy(name string, mode filterMode, extSet map[string]struct{}) bool {
+func shouldCopy(name string, mode FilterMode, extSet map[string]struct{}) bool {
 	switch mode {
-	case filterInclude:
+	case FilterInclude:
 		if extSet == nil {
 			return false
 		}
 		_, ok := extSet[fileExt(name)]
 		return ok
-	case filterExclude:
+	case FilterExclude:
 		if extSet == nil {
 			return true
 		}

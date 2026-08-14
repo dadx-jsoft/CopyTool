@@ -1,6 +1,17 @@
 # CopyTool
 Copy all files from a folder to another folder without subfolder (flattened).
 
+```
+CopyTool/
+├── cmd/copytool/     Go GUI entry
+├── internal/copy/    copy logic + tests
+├── java/             original Swing app (archive)
+├── scripts/          release / macOS build
+├── Icon.png
+├── FyneApp.toml
+└── go.mod
+```
+
 ## Download
 
 Latest release: **[v1.1.0](https://github.com/daduong-zen8labs/CopyTool/releases/tag/v1.1.0)** · [All releases](https://github.com/daduong-zen8labs/CopyTool/releases)
@@ -46,7 +57,7 @@ Requires **Go 1.22+** and a **C compiler** (Fyne uses CGO):
 
 ```bash
 go test ./...
-go run .
+go run ./cmd/copytool
 ```
 
 ### One-shot release (Windows host + Docker)
@@ -70,12 +81,12 @@ chmod +x ./scripts/build-darwin.sh
 
 ```bash
 # Windows
-go build -o CopyTool.exe .
+go build -o CopyTool.exe ./cmd/copytool
 
 # macOS / Linux
-go build -o CopyTool .
+go build -o CopyTool ./cmd/copytool
 ```
 
 ## Java (original)
 
-+ Build jar -> Use Launch4j to create a .exe file
+Sources live in `java/`. Build jar there, then use Launch4j to create a .exe file.

@@ -19,11 +19,11 @@ case "$ARCH" in
 esac
 
 echo "==> portable $PORTABLE"
-go build -ldflags="-s -w" -o "$PORTABLE" .
+go build -ldflags="-s -w" -o "$PORTABLE" ./cmd/copytool
 chmod +x "$PORTABLE"
 
 echo "==> install package (.app)"
-fyne package -os darwin -name CopyTool -appID com.vn.copytool -icon Icon.png
+fyne package -os darwin -name CopyTool -appID com.vn.copytool -icon Icon.png -src ./cmd/copytool
 if [[ -d CopyTool.app ]]; then
   zip -r "dist/install/CopyTool-darwin-${ARCH}.app.zip" CopyTool.app
   rm -rf CopyTool.app

@@ -1,4 +1,4 @@
-package main
+package copy
 
 import (
 	"os"
@@ -16,9 +16,9 @@ func TestCopyFilesToDirectoryFlattensAndRenamesDuplicates(t *testing.T) {
 	mustWrite(t, filepath.Join(src, "a", "dup.txt"), "aaa")
 	mustWrite(t, filepath.Join(src, "b", "dup.txt"), "bbb")
 
-	n, err := copyFilesToDirectory(src, dst, filterAll, nil)
+	n, err := CopyFilesToDirectory(src, dst, FilterAll, nil)
 	if err != nil {
-		t.Fatalf("copyFilesToDirectory: %v", err)
+		t.Fatalf("CopyFilesToDirectory: %v", err)
 	}
 	if n != 4 {
 		t.Fatalf("copied %d files, want 4", n)
@@ -61,9 +61,9 @@ func TestCopyFilesToDirectoryByExtension(t *testing.T) {
 	mustWrite(t, filepath.Join(src, "c.txt"), "txt")
 	mustWrite(t, filepath.Join(src, "sub", "d.jpeg"), "jpeg")
 
-	n, err := copyFilesToDirectory(src, dst, filterInclude, parseExtensions(".jpg, png"))
+	n, err := CopyFilesToDirectory(src, dst, FilterInclude, ParseExtensions(".jpg, png"))
 	if err != nil {
-		t.Fatalf("copyFilesToDirectory: %v", err)
+		t.Fatalf("CopyFilesToDirectory: %v", err)
 	}
 	if n != 2 {
 		t.Fatalf("copied %d files, want 2", n)
@@ -91,9 +91,9 @@ func TestCopyFilesToDirectoryExcludeExtension(t *testing.T) {
 	mustWrite(t, filepath.Join(src, "c.txt"), "txt")
 	mustWrite(t, filepath.Join(src, "sub", "d.pdf"), "pdf")
 
-	n, err := copyFilesToDirectory(src, dst, filterExclude, parseExtensions("jpg, txt"))
+	n, err := CopyFilesToDirectory(src, dst, FilterExclude, ParseExtensions("jpg, txt"))
 	if err != nil {
-		t.Fatalf("copyFilesToDirectory: %v", err)
+		t.Fatalf("CopyFilesToDirectory: %v", err)
 	}
 	if n != 2 {
 		t.Fatalf("copied %d files, want 2", n)
@@ -113,14 +113,14 @@ func TestCopyFilesToDirectoryExcludeExtension(t *testing.T) {
 }
 
 func TestCopyFilesToDirectoryMissingSource(t *testing.T) {
-	n, err := copyFilesToDirectory(filepath.Join(t.TempDir(), "missing"), t.TempDir(), filterAll, nil)
+	n, err := CopyFilesToDirectory(filepath.Join(t.TempDir(), "missing"), t.TempDir(), FilterAll, nil)
 	if err == nil || n != -1 {
 		t.Fatalf("got (%d, %v), want (-1, error)", n, err)
 	}
 }
 
 func TestParseExtensions(t *testing.T) {
-	got := parseExtensions(" .JPG,png; PDF  txt ")
+	got := ParseExtensions(" .JPG,png; PDF  txt ")
 	want := []string{"jpg", "png", "pdf", "txt"}
 	if len(got) != len(want) {
 		t.Fatalf("got %v, want %v", got, want)

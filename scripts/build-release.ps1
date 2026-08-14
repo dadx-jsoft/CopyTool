@@ -27,6 +27,7 @@ $Install = Join-Path $Dist "install"
 Remove-Item -Recurse -Force $Dist -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path $Portable, $Install | Out-Null
 
+$pkg = "./cmd/copytool"
 $common = @(
     "-name", "CopyTool",
     "-app-id", "com.vn.copytool",
@@ -34,11 +35,11 @@ $common = @(
 )
 
 Write-Host "==> fyne-cross windows amd64"
-& fyne-cross windows @common -arch amd64
+& fyne-cross windows @common -arch amd64 $pkg
 if ($LASTEXITCODE -ne 0) { throw "windows build failed" }
 
 Write-Host "==> fyne-cross linux amd64"
-& fyne-cross linux @common -arch amd64
+& fyne-cross linux @common -arch amd64 $pkg
 if ($LASTEXITCODE -ne 0) { throw "linux build failed" }
 
 $sdk = $env:COPYTOOL_MACOSX_SDK
@@ -49,7 +50,7 @@ if (-not $sdk) {
 
 if ($sdk -and (Test-Path $sdk)) {
     Write-Host "==> fyne-cross darwin amd64,arm64 (SDK: $sdk)"
-    & fyne-cross darwin @common -arch "amd64,arm64" -macosx-sdk-path $sdk
+    & fyne-cross darwin @common -arch "amd64,arm64" -macosx-sdk-path $sdk $pkg
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "darwin cross-build failed. Build on a Mac instead: ./scripts/build-darwin.sh"
     }
@@ -59,7 +60,7 @@ if ($sdk -and (Test-Path $sdk)) {
 
 # Also keep a stripped local Windows portable
 Write-Host "==> local windows portable"
-go build -ldflags="-s -w" -o (Join-Path $Portable "CopyTool-windows-amd64.exe") .
+go build -ldflags="-s -w" -o (Join-Path $Portable "CopyTool-windows-amd64.exe") ./cmd/copytool
 
 function Copy-IfExists([string]$Src, [string]$Dest) {
     if (Test-Path $Src) {
